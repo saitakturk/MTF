@@ -13,17 +13,17 @@ HomographyEstimator::HomographyEstimator(int _modelPoints, bool _use_boost_rng)
 	checkPartialSubsets = false;
 }
 
-int HomographyEstimator::runKernel(const CvMat* m1, const CvMat* m2, CvMat* H) {
+int HomographyEstimator::runKernel(const cv::Mat* m1, const cv::Mat* m2, cv::Mat* H) {
 	int i, count = m1->rows * m1->cols;
 	const CvPoint2D64f* M = (const CvPoint2D64f*)m1->data.ptr;
 	const CvPoint2D64f* m = (const CvPoint2D64f*)m2->data.ptr;
 
 	double LtL[9][9], W[9][1], V[9][9];
-	CvMat _LtL = cvMat(9, 9, CV_64F, LtL);
-	CvMat matW = cvMat(9, 1, CV_64F, W);
-	CvMat matV = cvMat(9, 9, CV_64F, V);
-	CvMat _H0 = cvMat(3, 3, CV_64F, V[8]);
-	CvMat _Htemp = cvMat(3, 3, CV_64F, V[7]);
+	cv::Mat _LtL = cv::Mat(9, 9, CV_64F, LtL);
+	cv::Mat matW = cv::Mat(9, 1, CV_64F, W);
+	cv::Mat matV = cv::Mat(9, 9, CV_64F, V);
+	cv::Mat _H0 = cv::Mat(3, 3, CV_64F, V[8]);
+	cv::Mat _Htemp = cv::Mat(3, 3, CV_64F, V[7]);
 	CvPoint2D64f cM = { 0, 0 }, cm = { 0, 0 }, sM = { 0, 0 }, sm = { 0, 0 };
 
 	for(i = 0; i < count; i++) {
@@ -55,8 +55,8 @@ int HomographyEstimator::runKernel(const CvMat* m1, const CvMat* m2, CvMat* H) {
 
 	double invHnorm[9] = { 1. / sm.x, 0, cm.x, 0, 1. / sm.y, cm.y, 0, 0, 1 };
 	double Hnorm2[9] = { sM.x, 0, -cM.x * sM.x, 0, sM.y, -cM.y * sM.y, 0, 0, 1 };
-	CvMat _invHnorm = cvMat(3, 3, CV_64FC1, invHnorm);
-	CvMat _Hnorm2 = cvMat(3, 3, CV_64FC1, Hnorm2);
+	cv::Mat _invHnorm = cv::Mat(3, 3, CV_64FC1, invHnorm);
+	cv::Mat _Hnorm2 = cv::Mat(3, 3, CV_64FC1, Hnorm2);
 
 	cvZero(&_LtL);
 	for(i = 0; i < count; i++) {
@@ -73,16 +73,16 @@ int HomographyEstimator::runKernel(const CvMat* m1, const CvMat* m2, CvMat* H) {
 
 	//cvSVD( &_LtL, &matW, 0, &matV, CV_SVD_MODIFY_A + CV_SVD_V_T );
 	cvEigenVV(&_LtL, &matV, &matW);
-	cvMatMul(&_invHnorm, &_H0, &_Htemp);
-	cvMatMul(&_Htemp, &_Hnorm2, &_H0);
+	cv::MatMul(&_invHnorm, &_H0, &_Htemp);
+	cv::MatMul(&_Htemp, &_Hnorm2, &_H0);
 	cvConvertScale(&_H0, H, 1. / _H0.data.db[8]);
 
 	return 1;
 }
 
 
-void HomographyEstimator::computeReprojError(const CvMat* m1, const CvMat* m2,
-	const CvMat* model, CvMat* _err) {
+void HomographyEstimator::computeReprojError(const cv::Mat* m1, const cv::Mat* m2,
+	const cv::Mat* model, cv::Mat* _err) {
 	int i, count = m1->rows * m1->cols;
 	const CvPoint2D64f* M = (const CvPoint2D64f*)m1->data.ptr;
 	const CvPoint2D64f* m = (const CvPoint2D64f*)m2->data.ptr;
@@ -97,18 +97,18 @@ void HomographyEstimator::computeReprojError(const CvMat* m1, const CvMat* m2,
 	}
 }
 
-bool HomographyEstimator::refine(const CvMat* m1, const CvMat* m2,
-	CvMat* model, int maxIters) {
+bool HomographyEstimator::refine(const cv::Mat* m1, const cv::Mat* m2,
+	cv::Mat* model, int maxIters) {
 	LevMarq solver(8, 0, cvTermCriteria(CV_TERMCRIT_ITER + CV_TERMCRIT_EPS, maxIters, DBL_EPSILON));
 	int i, j, k, count = m1->rows * m1->cols;
 	const CvPoint2D64f* M = (const CvPoint2D64f*)m1->data.ptr;
 	const CvPoint2D64f* m = (const CvPoint2D64f*)m2->data.ptr;
-	CvMat modelPart = cvMat(solver.param->rows, solver.param->cols, model->type, model->data.ptr);
+	cv::Mat modelPart = cv::Mat(solver.param->rows, solver.param->cols, model->type, model->data.ptr);
 	cvCopy(&modelPart, solver.param);
 
 	for(;;) {
-		const CvMat* _param = 0;
-		CvMat *_JtJ = 0, *_JtErr = 0;
+		const cv::Mat* _param = 0;
+		cv::Mat *_JtJ = 0, *_JtErr = 0;
 		double* _errNorm = 0;
 
 		if(!solver.updateAlt(_param, _JtJ, _JtErr, _errNorm))
@@ -151,8 +151,8 @@ cv::Mat estimateHomography(cv::InputArray _points1, cv::InputArray _points2,
 		points1.type() == points2.type());
 
 	cv::Mat H(3, 3, CV_64F);
-	CvMat _pt1 = points1, _pt2 = points2;
-	CvMat matH = H, c_mask, *p_mask = 0;
+	cv::Mat _pt1 = points1, _pt2 = points2;
+	cv::Mat matH = H, c_mask, *p_mask = 0;
 	if(_mask.needed()){
 		_mask.create(n_pts, 1, CV_8U, -1, true);
 		p_mask = &(c_mask = _mask.getMat());
@@ -163,13 +163,13 @@ cv::Mat estimateHomography(cv::InputArray _points1, cv::InputArray _points2,
 	return H;
 }
 
-int estimateHomography(const CvMat* objectPoints, const CvMat* imagePoints,
-	CvMat* __H, CvMat* mask, const SSMEstimatorParams &params){
+int estimateHomography(const cv::Mat* objectPoints, const cv::Mat* imagePoints,
+	cv::Mat* __H, cv::Mat* mask, const SSMEstimatorParams &params){
 	bool result = false;
-	cv::Ptr<CvMat> m, M, tempMask;
+	cv::Ptr<cv::Mat> m, M, tempMask;
 
 	double H[9];
-	CvMat matH = cvMat(3, 3, CV_64FC1, H);
+	cv::Mat matH = cv::Mat(3, 3, CV_64FC1, H);
 
 	CV_Assert(CV_IS_MAT(imagePoints) && CV_IS_MAT(objectPoints));
 

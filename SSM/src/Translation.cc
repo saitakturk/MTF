@@ -334,8 +334,8 @@ cv::Mat Translation::estimateTranslation(cv::InputArray _in_pts, cv::InputArray 
 		in_pts.type() == out_pts.type());
 
 	cv::Mat H(1, 2, CV_64F);
-	CvMat _pt1 = in_pts, _pt2 = out_pts;
-	CvMat matH = H, c_mask, *p_mask = 0;
+	cv::Mat _pt1 = in_pts, _pt2 = out_pts;
+    cv::Mat matH = H, c_mask, *p_mask = 0;
 	if(_mask.needed()){
 		_mask.create(n_pts, 1, CV_8U, -1, true);
 		p_mask = &(c_mask = _mask.getMat());

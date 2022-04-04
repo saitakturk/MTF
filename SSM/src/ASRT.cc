@@ -424,8 +424,8 @@ cv::Mat ASRT::estimateASRT(cv::InputArray _in_pts, cv::InputArray _out_pts,
 		in_pts.type() == out_pts.type());
 
 	cv::Mat H(5, 1, CV_64F);
-	CvMat _pt1 = in_pts, _pt2 = out_pts;
-	CvMat matH = H, c_mask, *p_mask = 0;
+	cv::Mat _pt1 = in_pts, _pt2 = out_pts;
+	cv::Mat matH = H, c_mask, *p_mask = 0;
 	if(_mask.needed()){
 		_mask.create(n_pts, 1, CV_8U, -1, true);
 		p_mask = &(c_mask = _mask.getMat());
@@ -436,13 +436,13 @@ cv::Mat ASRT::estimateASRT(cv::InputArray _in_pts, cv::InputArray _out_pts,
 	return H;
 }
 
-int	ASRT::estimateASRT(const CvMat* in_pts, const CvMat* out_pts,
-	CvMat* __H, CvMat* mask, const SSMEstimatorParams &params) {
+int	ASRT::estimateASRT(const cv::Mat* in_pts, const cv::Mat* out_pts,
+	cv::Mat* __H, cv::Mat* mask, const SSMEstimatorParams &params) {
 	bool result = false;
-	cv::Ptr<CvMat> out_pts_hm, in_pts_hm, tempMask;
+	cv::Ptr<cv::Mat> out_pts_hm, in_pts_hm, tempMask;
 
 	double H[5];
-	CvMat matH = cvMat(5, 1, CV_64FC1, H);
+	cv::Mat matH = cv::Mat(5, 1, CV_64FC1, H);
 
 	CV_Assert(CV_IS_MAT(out_pts) && CV_IS_MAT(in_pts));
 
@@ -510,7 +510,7 @@ ASRTEstimator::ASRTEstimator(int _modelPoints, bool _use_boost_rng)
 	checkPartialSubsets = false;
 }
 
-int ASRTEstimator::runKernel(const CvMat* m1, const CvMat* m2, CvMat* H) {
+int ASRTEstimator::runKernel(const cv::Mat* m1, const cv::Mat* m2, cv::Mat* H) {
 	int n_pts = m1->rows * m1->cols;
 	//if(n_pts != 3) {
 	//    throw invalid_argument(cv::format("Invalid no. of points: %d provided", n_pts));
@@ -540,8 +540,8 @@ int ASRTEstimator::runKernel(const CvMat* m1, const CvMat* m2, CvMat* H) {
 }
 
 
-void ASRTEstimator::computeReprojError(const CvMat* m1, const CvMat* m2,
-	const CvMat* model, CvMat* _err) {
+void ASRTEstimator::computeReprojError(const cv::Mat* m1, const cv::Mat* m2,
+	const cv::Mat* model, cv::Mat* _err) {
 	int n_pts = m1->rows * m1->cols;
 	const CvPoint2D64f* M = (const CvPoint2D64f*)m1->data.ptr;
 	const CvPoint2D64f* m = (const CvPoint2D64f*)m2->data.ptr;
@@ -555,18 +555,18 @@ void ASRTEstimator::computeReprojError(const CvMat* m1, const CvMat* m2,
 	}
 }
 
-bool ASRTEstimator::refine(const CvMat* m1, const CvMat* m2,
-	CvMat* model, int maxIters) {
+bool ASRTEstimator::refine(const cv::Mat* m1, const cv::Mat* m2,
+	cv::Mat* model, int maxIters) {
 	LevMarq solver(5, 0, cvTermCriteria(CV_TERMCRIT_ITER + CV_TERMCRIT_EPS, maxIters, DBL_EPSILON));
 	int n_pts = m1->rows * m1->cols;
 	const CvPoint2D64f* M = (const CvPoint2D64f*)m1->data.ptr;
 	const CvPoint2D64f* m = (const CvPoint2D64f*)m2->data.ptr;
-	CvMat modelPart = cvMat(solver.param->rows, solver.param->cols, model->type, model->data.ptr);
+	cv::Mat modelPart = cv::Mat(solver.param->rows, solver.param->cols, model->type, model->data.ptr);
 	cvCopy(&modelPart, solver.param);
 
 	for(;;)	{
-		const CvMat* _param = 0;
-		CvMat *_JtJ = 0, *_JtErr = 0;
+		const cv::Mat* _param = 0;
+		cv::Mat *_JtJ = 0, *_JtErr = 0;
 		double* _errNorm = 0;
 
 		if(!solver.updateAlt(_param, _JtJ, _JtErr, _errNorm))

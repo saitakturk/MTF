@@ -145,11 +145,11 @@ namespace mtf {
 			}
 
 			// Draw the values
-			CvPoint ptPrev = cv::Point(b, h - (b - y0));	// Start the lines at the 1st point.
+			auto ptPrev = cv::Point(b, h - (b - y0));	// Start the lines at the 1st point.
 			for(int i = 0; i < nArrayLength; i++) {
 				int y = cvRound((arraySrc[i] - minV) * fscale);	// Get the values at a bigger scale
 				int x = cvRound(i * xscale);
-				CvPoint ptNew = cv::Point(b + x, h - (b + y));
+				auto ptNew = cv::Point(b + x, h - (b + y));
 				line(imageGraph, ptPrev, ptNew, colorGraph, 1, CV_AA);	// Draw a line from the previous point to the new point
 				ptPrev = ptNew;
 			}
@@ -230,11 +230,11 @@ namespace mtf {
 			}
 
 			// Draw the values
-			CvPoint ptPrev = cv::Point(b, h - (b - y0));	// Start the lines at the 1st point.
+			auto ptPrev = cv::Point(b, h - (b - y0));	// Start the lines at the 1st point.
 			for(int i = 0; i < nArrayLength; i++) {
 				int y = cvRound((arraySrc[i] - minV) * fscale);	// Get the values at a bigger scale
 				int x = cvRound(i * xscale);
-				CvPoint ptNew = cv::Point(b + x, h - (b + y));
+				auto ptNew = cv::Point(b + x, h - (b + y));
 				line(imageGraph, ptPrev, ptNew, colorGraph, 1, CV_AA);	// Draw a line from the previous point to the new point
 				ptPrev = ptNew;
 			}
@@ -314,11 +314,11 @@ namespace mtf {
 			}
 
 			// Draw the values
-			CvPoint ptPrev = cv::Point(b, h - (b - y0));	// Start the lines at the 1st point.
+			auto ptPrev = cv::Point(b, h - (b - y0));	// Start the lines at the 1st point.
 			for(int i = 0; i < nArrayLength; i++) {
 				int y = cvRound((arraySrc[i] - minV) * fscale);	// Get the values at a bigger scale
 				int x = cvRound(i * xscale);
-				CvPoint ptNew = cv::Point(b + x, h - (b + y));
+				auto ptNew = cv::Point(b + x, h - (b + y));
 				line(imageGraph, ptPrev, ptNew, colorGraph, 1, CV_AA);	// Draw a line from the previous point to the new point
 				ptPrev = ptNew;
 			}
